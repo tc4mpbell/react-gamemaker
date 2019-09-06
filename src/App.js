@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-
-import image from "./sebastian-unrau-sp-p7uuT0tw-unsplash.jpg";
+import React, { useRef, useState, useEffect } from "react";
+import { SketchField, Tools } from "react-sketch";
 
 const cardTemplate = {
   image: null,
@@ -96,9 +95,15 @@ const App = () => {
   const [runningGame, setRunningGame] = useState(false);
   const [editingButton, setEditingButton] = useState(null);
   const [cardText, setCardText] = useState(card.text);
+  const [cardImage, setCardImage] = useState(card.image);
+
+  const cardImageRef = useRef(null);
 
   useEffect(() => {
     setCardText(card.text);
+    setCardImage(card.image);
+
+    console.log("Loaded card image", card.image);
   }, [currentCardIndex]);
 
   const handleButtonClick = button => {
@@ -114,9 +119,20 @@ const App = () => {
     setEditingButton(null);
   };
 
-  const saveCard = (text, image) => {
-    setCardText(text);
-    card.text = text;
+  const saveCard = () => {
+    console.log("Saving card image");
+
+    card.text = cardText;
+    card.image = cardImageRef.current.toJSON();
+
+    // setCardImage(card.image);
+    // setCardText(card.text);
+  };
+
+  const saveAndGoToCard = cardNumber => {
+    saveCard();
+    cardImageRef.current.clear();
+    setCardIndex(cardNumber);
   };
 
   return (
@@ -130,7 +146,7 @@ const App = () => {
           {currentCardIndex !== 0 && (
             <Button
               className="mr-3"
-              onClick={() => setCardIndex(currentCardIndex - 1)}
+              onClick={() => saveAndGoToCard(currentCardIndex - 1)}
             >
               &larr; Previous Card
             </Button>
@@ -139,7 +155,7 @@ const App = () => {
           {currentCardIndex !== 99 && (
             <Button
               className="mr-3"
-              onClick={() => setCardIndex(currentCardIndex + 1)}
+              onClick={() => saveAndGoToCard(currentCardIndex + 1)}
             >
               Next Card &rarr;
             </Button>
@@ -153,8 +169,20 @@ const App = () => {
       </div>
 
       <div className="flex" style={{ minHeight: "300px" }}>
-        <div className="border border-solid w-1/2 mr-3">
-          <img src={card.image} />
+        <div className="border border-solid w-1/2 mr-3 bg-white">
+          {runningGame ? (
+            <img src={card.image} />
+          ) : (
+            <SketchField
+              width="100%"
+              height="100%"
+              tool={Tools.Pencil}
+              lineColor="black"
+              lineWidth={3}
+              value={cardImage}
+              ref={cardImageRef}
+            />
+          )}
         </div>
         {runningGame ? (
           <div className="border border-solid w-1/2 bg-white p-4">
@@ -163,7 +191,7 @@ const App = () => {
         ) : (
           <textarea
             className="border border-solid w-1/2 bg-white p-4"
-            onChange={e => saveCard(e.target.value)}
+            onChange={e => setCardText(e.target.value)}
             value={cardText}
           ></textarea>
         )}
