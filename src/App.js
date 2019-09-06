@@ -54,32 +54,37 @@ const EditButton = ({ handleSave, button }) => {
   const [goToCard, setDestinationCard] = useState(button.goToCard);
 
   return (
-    <div className="p-4 border border-solid bg-white absolute z-10">
-      <div className="flex justify-between items-center mb-3">
-        <Label>Button text:</Label>
-        <Input
-          type="text"
-          onChange={e => setButtonText(e.target.value)}
-          value={buttonText}
-        />
-      </div>
+    <>
+      <div className="fixed w-full h-full bg-gray-600 left-0 top-0 opacity-50 z-10"></div>
+      <div className="fixed w-full h-full left-0 top-0 z-10">
+        <div className="mt-4 mx-auto p-4 border border-solid bg-white max-w-xs">
+          <div className="flex justify-between items-center mb-3">
+            <Label>Button text:</Label>
+            <Input
+              type="text"
+              onChange={e => setButtonText(e.target.value)}
+              value={buttonText}
+            />
+          </div>
 
-      <div className="flex  justify-between items-center">
-        <Label>Go to card:</Label>
-        <Input
-          type="number"
-          onChange={e => setDestinationCard(e.target.value)}
-          value={goToCard || ""}
-        />
-      </div>
+          <div className="flex  justify-between items-center">
+            <Label>Go to card:</Label>
+            <Input
+              type="number"
+              onChange={e => setDestinationCard(e.target.value)}
+              value={goToCard || ""}
+            />
+          </div>
 
-      <Button
-        className="w-full bg-red-500 text-white mt-4"
-        onClick={() => handleSave(buttonText, goToCard)}
-      >
-        Save
-      </Button>
-    </div>
+          <Button
+            className="w-full bg-red-500 text-white mt-4"
+            onClick={() => handleSave(buttonText, goToCard)}
+          >
+            Save
+          </Button>
+        </div>
+      </div>
+    </>
   );
 };
 
@@ -91,8 +96,6 @@ const App = () => {
   const [currentCardIndex, setCardIndex] = useState(0);
 
   if (currentCardIndex > game.cards.length - 1) {
-    console.log({ cardTemplate });
-
     const clonedTemplate = JSON.parse(JSON.stringify(cardTemplate));
 
     game.cards.push(clonedTemplate);
@@ -117,22 +120,32 @@ const App = () => {
 
   const handleButtonClick = button => {
     if (runningGame) {
+      if (button.goToCard) setCardIndex(button.goToCard - 1);
     } else {
       setEditingButton(button);
     }
   };
 
   const saveButton = (text, goToCard) => {
-    // TODO don't edit state directly.
     editingButton.text = text;
     editingButton.goToCard = goToCard;
+
+    saveCard();
+
     setEditingButton(null);
+
+    console.log(
+      "cardButtons",
+      cardButtons,
+      card.buttons,
+      game.cards[0].buttons
+    );
   };
 
   const saveCard = () => {
-    // TODO don't edit state directly.
     card.text = cardText;
     card.image = cardImageRef.current.toJSON();
+    card.buttons = cardButtons;
 
     localStorage.setItem("_gamemaker_game", JSON.stringify(game));
   };
