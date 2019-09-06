@@ -1,6 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import { SketchField, Tools } from "react-sketch";
 
+let game = {
+  title: "My game",
+  cards: []
+};
+
 const cardTemplate = {
   image: null,
   text: "",
@@ -32,11 +37,6 @@ const cardTemplate = {
   ]
 };
 
-const game = {
-  title: "My game",
-  cards: []
-};
-
 const Button = ({ children, className, ...props }) => {
   return (
     <button className={`border rounded p-2 bg-white ${className}`} {...props}>
@@ -54,7 +54,7 @@ const EditButton = ({ handleSave, button }) => {
   const [goToCard, setDestinationCard] = useState(button.goToCard);
 
   return (
-    <div className="p-4 border border-solid bg-white absolute">
+    <div className="p-4 border border-solid bg-white absolute z-10">
       <div className="flex justify-between items-center mb-3">
         <Label>Button text:</Label>
         <Input
@@ -84,27 +84,36 @@ const EditButton = ({ handleSave, button }) => {
 };
 
 const App = () => {
+  const savedGame = localStorage.getItem("_gamemaker_game");
+  if (savedGame) game = JSON.parse(savedGame);
+
+  // const [game, setGame] = useState();
   const [currentCardIndex, setCardIndex] = useState(0);
 
   if (currentCardIndex > game.cards.length - 1) {
-    game.cards.push({ ...cardTemplate });
+    console.log({ cardTemplate });
+
+    const clonedTemplate = JSON.parse(JSON.stringify(cardTemplate));
+
+    game.cards.push(clonedTemplate);
   }
 
   const card = game.cards[currentCardIndex];
 
   const [runningGame, setRunningGame] = useState(false);
   const [editingButton, setEditingButton] = useState(null);
+
   const [cardText, setCardText] = useState(card.text);
   const [cardImage, setCardImage] = useState(card.image);
+  const [cardButtons, setCardButtons] = useState(card.buttons);
 
   const cardImageRef = useRef(null);
 
   useEffect(() => {
     setCardText(card.text);
     setCardImage(card.image);
-
-    console.log("Loaded card image", card.image);
-  }, [currentCardIndex]);
+    setCardButtons(card.buttons);
+  }, [currentCardIndex, runningGame]);
 
   const handleButtonClick = button => {
     if (runningGame) {
@@ -114,19 +123,18 @@ const App = () => {
   };
 
   const saveButton = (text, goToCard) => {
+    // TODO don't edit state directly.
     editingButton.text = text;
     editingButton.goToCard = goToCard;
     setEditingButton(null);
   };
 
   const saveCard = () => {
-    console.log("Saving card image");
-
+    // TODO don't edit state directly.
     card.text = cardText;
     card.image = cardImageRef.current.toJSON();
 
-    // setCardImage(card.image);
-    // setCardText(card.text);
+    localStorage.setItem("_gamemaker_game", JSON.stringify(game));
   };
 
   const saveAndGoToCard = cardNumber => {
@@ -143,27 +151,34 @@ const App = () => {
 
       <div className="mb-3 flex justify-between">
         <div>
-          {currentCardIndex !== 0 && (
-            <Button
-              className="mr-3"
-              onClick={() => saveAndGoToCard(currentCardIndex - 1)}
-            >
-              &larr; Previous Card
-            </Button>
+          {!runningGame && (
+            <>
+              <Button
+                className={`mr-3 ${currentCardIndex === 0 && "text-gray-500"}`}
+                onClick={() => saveAndGoToCard(currentCardIndex - 1)}
+                disabled={currentCardIndex === 0}
+              >
+                &larr; Previous Card
+              </Button>
+              <span className="mr-3">{currentCardIndex + 1} / 100</span>
+              <Button
+                className={`mr-3 ${currentCardIndex === 99 && "text-gray-500"}`}
+                onClick={() => saveAndGoToCard(currentCardIndex + 1)}
+                disabled={currentCardIndex === 99}
+              >
+                Next Card &rarr;
+              </Button>
+              <Button className="mr-3">Card Settings</Button>
+            </>
           )}
-
-          {currentCardIndex !== 99 && (
-            <Button
-              className="mr-3"
-              onClick={() => saveAndGoToCard(currentCardIndex + 1)}
-            >
-              Next Card &rarr;
-            </Button>
-          )}
-          <Button className="mr-3">Card Settings</Button>
         </div>
 
-        <Button onClick={() => setRunningGame(!runningGame)}>
+        <Button
+          onClick={() => {
+            if (!runningGame) saveCard();
+            setRunningGame(!runningGame);
+          }}
+        >
           {runningGame ? "Edit Game" : "Run Game!"}
         </Button>
       </div>
@@ -198,7 +213,7 @@ const App = () => {
       </div>
 
       <div className="mt-6 flex flex-wrap justify-between">
-        {card.buttons
+        {cardButtons
           .filter(
             button =>
               !runningGame || (button.text && button.text !== "Untitled")
