@@ -9,6 +9,8 @@ let game = {
 const cardTemplate = {
   image: null,
   text: "",
+  delay: null,
+  redirectToCard: null,
   buttons: [
     {
       text: "",
@@ -48,6 +50,46 @@ const Button = ({ children, className, ...props }) => {
 const Label = props => <label className="font-bold mr-2" {...props} />;
 
 const Input = props => <input className="p-2 border border-solid" {...props} />;
+
+const CardSettings = ({ handleSave, card }) => {
+  // Card settings: timeout/gotocard
+  const [delay, setDelay] = useState(card.delay || "");
+  const [goToCard, setDestinationCard] = useState(card.redirectToCard || "");
+
+  return (
+    <>
+      <div className="fixed w-full h-full bg-gray-600 left-0 top-0 opacity-50 z-10"></div>
+      <div className="fixed w-full h-full left-0 top-0 z-10">
+        <div className="mt-4 mx-auto p-4 border border-solid bg-white max-w-xs">
+          <div className="flex justify-between items-center mb-3">
+            <Label>Delay:</Label>
+            <Input
+              type="text"
+              onChange={e => setDelay(e.target.value)}
+              value={delay}
+            />
+          </div>
+
+          <div className="flex  justify-between items-center">
+            <Label>Go to card:</Label>
+            <Input
+              type="number"
+              onChange={e => setDestinationCard(e.target.value)}
+              value={goToCard || ""}
+            />
+          </div>
+
+          <Button
+            className="w-full bg-red-500 text-white mt-4"
+            onClick={() => handleSave(delay, goToCard)}
+          >
+            Save
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+};
 
 const EditButton = ({ handleSave, button }) => {
   const [buttonText, setButtonText] = useState(button.text);
@@ -104,8 +146,12 @@ const App = () => {
   const card = game.cards[currentCardIndex];
 
   const [runningGame, setRunningGame] = useState(false);
+  const [editingCardSettings, setShowCardSettings] = useState(null);
+
   const [editingButton, setEditingButton] = useState(null);
   const [tool, setTool] = useState(Tools.Pencil);
+  const [fillColor, setFillColor] = useState("transparent");
+  const [lineColor, setLineColor] = useState("black");
 
   const [cardText, setCardText] = useState(card.text);
   const [cardImage, setCardImage] = useState(card.image);
@@ -122,7 +168,8 @@ const App = () => {
   }, []);
 
   const handleBackspacePress = e => {
-    if (e.key === "Backspace") cardImageRef.current.removeSelected();
+    if (!runningGame && e.key === "Backspace")
+      cardImageRef.current.removeSelected();
   };
 
   useEffect(() => {
@@ -131,12 +178,31 @@ const App = () => {
     setCardButtons(card.buttons);
   }, [currentCardIndex, runningGame]);
 
+  // TODO need effect?
+  useEffect(() => {
+    if (runningGame && card.delay && card.redirectToCard) {
+      // set a timer, then redirect away from this card (animation!)
+      setTimeout(() => {
+        setCardIndex(card.redirectToCard);
+      }, card.delay);
+    }
+  }, [runningGame]);
+
   const handleButtonClick = button => {
     if (runningGame) {
       if (button.goToCard) setCardIndex(button.goToCard - 1);
     } else {
       setEditingButton(button);
     }
+  };
+
+  const saveCardSettings = (delay, redirectToCardNumber) => {
+    card.delay = delay;
+    card.redirectToCard = redirectToCardNumber;
+
+    saveCard();
+
+    setShowCardSettings(null);
   };
 
   const saveButton = (text, goToCard) => {
@@ -170,6 +236,13 @@ const App = () => {
         <EditButton button={editingButton} handleSave={saveButton} />
       )}
 
+      {editingCardSettings && (
+        <CardSettings
+          card={editingCardSettings}
+          handleSave={saveCardSettings}
+        />
+      )}
+
       <div className="mb-3 flex justify-between">
         <div>
           {!runningGame && (
@@ -189,7 +262,12 @@ const App = () => {
               >
                 Next Card &rarr;
               </Button>
-              <Button className="mr-3">Card Settings</Button>
+              <Button
+                className="mr-3"
+                onClick={() => setShowCardSettings(card)}
+              >
+                Card Settings
+              </Button>
             </>
           )}
         </div>
@@ -211,6 +289,20 @@ const App = () => {
           <Button onClick={() => setTool(Tools.Line)}>Line</Button>
           <Button onClick={() => setTool(Tools.Rectangle)}>Rectangle</Button>
           <Button onClick={() => setTool(Tools.Circle)}>Circle</Button>
+          <Button>
+            <input
+              type="color"
+              onChange={e => setFillColor(e.target.value)}
+            ></input>
+            Fill
+          </Button>
+          <Button>
+            <input
+              type="color"
+              onChange={e => setLineColor(e.target.value)}
+            ></input>
+            Line
+          </Button>
 
           <a
             className="ml-2"
@@ -230,7 +322,8 @@ const App = () => {
               width="100%"
               height="100%"
               tool={tool}
-              lineColor="black"
+              lineColor={lineColor}
+              fillColor={fillColor}
               lineWidth={3}
               value={cardImage}
               ref={cardImageRef}
