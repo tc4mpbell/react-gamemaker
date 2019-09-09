@@ -105,12 +105,25 @@ const App = () => {
 
   const [runningGame, setRunningGame] = useState(false);
   const [editingButton, setEditingButton] = useState(null);
+  const [tool, setTool] = useState(Tools.Pencil);
 
   const [cardText, setCardText] = useState(card.text);
   const [cardImage, setCardImage] = useState(card.image);
   const [cardButtons, setCardButtons] = useState(card.buttons);
 
   const cardImageRef = useRef(null);
+
+  useEffect(() => {
+    window.addEventListener("keyup", handleBackspacePress);
+
+    return () => {
+      window.removeEventListener("keyup", handleBackspacePress);
+    };
+  }, []);
+
+  const handleBackspacePress = e => {
+    if (e.key === "Backspace") cardImageRef.current.removeSelected();
+  };
 
   useEffect(() => {
     setCardText(card.text);
@@ -133,19 +146,14 @@ const App = () => {
     saveCard();
 
     setEditingButton(null);
-
-    console.log(
-      "cardButtons",
-      cardButtons,
-      card.buttons,
-      game.cards[0].buttons
-    );
   };
 
   const saveCard = () => {
     card.text = cardText;
     card.image = cardImageRef.current.toJSON();
     card.buttons = cardButtons;
+
+    card.imageDataUrl = cardImageRef.current.toDataURL();
 
     localStorage.setItem("_gamemaker_game", JSON.stringify(game));
   };
@@ -196,15 +204,32 @@ const App = () => {
         </Button>
       </div>
 
+      {!runningGame && (
+        <div className="flex items-center">
+          <Button onClick={() => setTool(Tools.Pencil)}>Pencil</Button>
+          <Button onClick={() => setTool(Tools.Select)}>Select</Button>
+          <Button onClick={() => setTool(Tools.Line)}>Line</Button>
+          <Button onClick={() => setTool(Tools.Rectangle)}>Rectangle</Button>
+          <Button onClick={() => setTool(Tools.Circle)}>Circle</Button>
+
+          <a
+            className="ml-2"
+            onClick={() => cardImageRef.current.removeSelected()}
+          >
+            Delete
+          </a>
+        </div>
+      )}
+
       <div className="flex" style={{ minHeight: "300px" }}>
         <div className="border border-solid w-1/2 mr-3 bg-white">
           {runningGame ? (
-            <img src={card.image} />
+            <img src={card.imageDataUrl} />
           ) : (
             <SketchField
               width="100%"
               height="100%"
-              tool={Tools.Pencil}
+              tool={tool}
               lineColor="black"
               lineWidth={3}
               value={cardImage}
