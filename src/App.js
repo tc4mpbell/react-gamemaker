@@ -131,12 +131,14 @@ const EditButton = ({ handleSave, button }) => {
 };
 
 const App = () => {
+  let _timeoutId = null;
   const savedGame = localStorage.getItem("_gamemaker_game");
   if (savedGame) game = JSON.parse(savedGame);
 
   // const [game, setGame] = useState();
   const [currentCardIndex, setCardIndex] = useState(0);
 
+  // If the cards array doesn't have an entry for this ix, make one.
   if (currentCardIndex > game.cards.length - 1) {
     const clonedTemplate = JSON.parse(JSON.stringify(cardTemplate));
 
@@ -182,11 +184,16 @@ const App = () => {
   useEffect(() => {
     if (runningGame && card.delay && card.redirectToCard) {
       // set a timer, then redirect away from this card (animation!)
-      setTimeout(() => {
-        setCardIndex(card.redirectToCard);
+      _timeoutId = setTimeout(() => {
+        setCardIndex(card.redirectToCard - 1);
       }, card.delay);
     }
-  }, [runningGame]);
+    return () => {
+      if (_timeoutId) {
+        clearTimeout(_timeoutId);
+      }
+    };
+  }, [runningGame, currentCardIndex]);
 
   const handleButtonClick = button => {
     if (runningGame) {
