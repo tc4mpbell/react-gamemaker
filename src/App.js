@@ -1,11 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { SketchField, Tools } from "react-sketch";
 
-let game = {
-  title: "My game",
-  cards: []
-};
-
 const cardTemplate = {
   image: null,
   text: "",
@@ -132,20 +127,47 @@ const EditButton = ({ handleSave, button }) => {
 
 const App = () => {
   let _timeoutId = null;
-  const savedGame = localStorage.getItem("_gamemaker_game");
-  if (savedGame) game = JSON.parse(savedGame);
+  let savedGame = localStorage.getItem("_gamemaker_game");
+  if (savedGame) savedGame = JSON.parse(savedGame);
 
-  // const [game, setGame] = useState();
+  const initialGameState = savedGame || {
+    title: "My game",
+    cards: [JSON.parse(JSON.stringify(cardTemplate))]
+  };
+
+  const [game, setGame] = useState(initialGameState);
   const [currentCardIndex, setCardIndex] = useState(0);
+  const [card, setCard] = useState(game.cards[currentCardIndex]);
 
-  // If the cards array doesn't have an entry for this ix, make one.
-  if (currentCardIndex > game.cards.length - 1) {
-    const clonedTemplate = JSON.parse(JSON.stringify(cardTemplate));
+  const [tempCardImageJSON, setTempCardImageJSON] = useState({
+    [currentCardIndex]: card.image
+  });
 
-    game.cards.push(clonedTemplate);
-  }
+  useEffect(() => {
+    // If the cards array doesn't have an entry for this ix, make one.
+    if (currentCardIndex > game.cards.length - 1) {
+      const clonedTemplate = JSON.parse(JSON.stringify(cardTemplate));
 
-  const card = game.cards[currentCardIndex];
+      setGame({
+        ...game,
+        cards: [...game.cards, clonedTemplate]
+      });
+    }
+
+    if (game.cards.length - 1 >= currentCardIndex)
+      setCard(game.cards[currentCardIndex]);
+  }, [game, currentCardIndex]);
+
+  useEffect(() => {
+    if (!card.image) cardImageRef.current.clear();
+  }, [card]);
+
+  // Save game to localstorage
+  useEffect(() => {
+    saveGame();
+  }, [game]);
+
+  // const card = game.cards[currentCardIndex];
 
   const [runningGame, setRunningGame] = useState(false);
   const [editingCardSettings, setShowCardSettings] = useState(null);
@@ -155,9 +177,7 @@ const App = () => {
   const [fillColor, setFillColor] = useState("transparent");
   const [lineColor, setLineColor] = useState("black");
 
-  const [cardText, setCardText] = useState(card.text);
-  const [cardImage, setCardImage] = useState(card.image);
-  const [cardButtons, setCardButtons] = useState(card.buttons);
+  // const [cardButtons, setCardButtons] = useState(card.buttons);
 
   const cardImageRef = useRef(null);
 
@@ -174,11 +194,11 @@ const App = () => {
       cardImageRef.current.removeSelected();
   };
 
-  useEffect(() => {
-    setCardText(card.text);
-    setCardImage(card.image);
-    setCardButtons(card.buttons);
-  }, [currentCardIndex, runningGame]);
+  // useEffect(() => {
+  //   setCardText(card.text);
+  //   setCardImage(card.image);
+  //   setCardButtons(card.buttons);
+  // }, [currentCardIndex, runningGame]);
 
   // TODO need effect?
   useEffect(() => {
@@ -213,28 +233,45 @@ const App = () => {
   };
 
   const saveButton = (text, goToCard) => {
-    editingButton.text = text;
-    editingButton.goToCard = goToCard;
+    const newButtons = card.buttons.map(btn => {
+      if (btn !== editingButton) return btn;
 
-    saveCard();
+      return { text, goToCard };
+    });
+
+    updateCard(currentCardIndex, { buttons: newButtons });
 
     setEditingButton(null);
   };
 
-  const saveCard = () => {
-    card.text = cardText;
-    card.image = cardImageRef.current.toJSON();
-    card.buttons = cardButtons;
+  const updateCard = (cardIx, cardChanges) => {
+    setGame({
+      ...game,
+      cards: game.cards.map((card, ix) => {
+        if (ix !== cardIx) return card;
 
-    card.imageDataUrl = cardImageRef.current.toDataURL();
+        return { ...card, ...cardChanges };
+      })
+    });
+  };
 
+  const saveCard = ix => {
+    updateCard(ix, {
+      image: tempCardImageJSON[ix]
+    });
+  };
+
+  const saveGame = () => {
     localStorage.setItem("_gamemaker_game", JSON.stringify(game));
   };
 
   const saveAndGoToCard = cardNumber => {
-    saveCard();
-    cardImageRef.current.clear();
-    setCardIndex(cardNumber);
+    saveCard(currentCardIndex);
+    _setCardIx(cardNumber);
+  };
+
+  const _setCardIx = ix => {
+    setCardIndex(ix);
   };
 
   return (
@@ -323,7 +360,13 @@ const App = () => {
       <div className="flex" style={{ minHeight: "300px" }}>
         <div className="border border-solid w-1/2 mr-3 bg-white">
           {runningGame ? (
-            <img src={card.imageDataUrl} />
+            <SketchField
+              width="100%"
+              height="100%"
+              tool={null}
+              value={card.image}
+              ref={cardImageRef}
+            />
           ) : (
             <SketchField
               width="100%"
@@ -332,7 +375,13 @@ const App = () => {
               lineColor={lineColor}
               fillColor={fillColor}
               lineWidth={3}
-              value={cardImage}
+              value={card.image}
+              onChange={() => {
+                setTempCardImageJSON({
+                  ...tempCardImageJSON,
+                  [currentCardIndex]: cardImageRef.current.toJSON()
+                });
+              }}
               ref={cardImageRef}
             />
           )}
@@ -344,14 +393,14 @@ const App = () => {
         ) : (
           <textarea
             className="border border-solid w-1/2 bg-white p-4"
-            onChange={e => setCardText(e.target.value)}
-            value={cardText}
+            onChange={e => updateCard({ text: e.target.value })}
+            value={card.text}
           ></textarea>
         )}
       </div>
 
       <div className="mt-6 flex flex-wrap justify-between">
-        {cardButtons
+        {card.buttons
           .filter(
             button =>
               !runningGame || (button.text && button.text !== "Untitled")
