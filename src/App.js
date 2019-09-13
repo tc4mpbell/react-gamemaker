@@ -176,6 +176,7 @@ const App = () => {
   const [tool, setTool] = useState(Tools.Pencil);
   const [fillColor, setFillColor] = useState("transparent");
   const [lineColor, setLineColor] = useState("black");
+  const [copiedScene, setCopiedScene] = useState(null);
 
   // const [cardButtons, setCardButtons] = useState(card.buttons);
 
@@ -348,6 +349,12 @@ const App = () => {
             Line
           </Button>
 
+          <Button onClick={() => setCopiedScene(card.image)}>Copy Scene</Button>
+          {copiedScene && (
+            <Button onClick={() => cardImageRef.current.fromJSON(copiedScene)}>
+              Paste Scene
+            </Button>
+          )}
           <a
             className="ml-2"
             onClick={() => cardImageRef.current.removeSelected()}
