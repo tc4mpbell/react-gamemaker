@@ -36,12 +36,9 @@ const cardTemplate = {
 
 const Button = ({ children, className, ...props }) => {
   return (
-    <button
-      className={`shadow border rounded p-2 bg-white ${className}`}
-      {...props}
-    >
+    <a className={`shadow border rounded p-2 bg-white ${className}`} {...props}>
       {children || "Untitled"}
-    </button>
+    </a>
   );
 };
 
@@ -230,6 +227,25 @@ const App = () => {
     });
   };
 
+  const loadGameFromFile = e => {
+    var file = e.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      console.log("target", e.target.result);
+      setGame(JSON.parse(e.target.result));
+    };
+    reader.readAsText(file);
+  };
+
+  const exportGame = e => {
+    var json = JSON.stringify(game);
+    var jsonData =
+      "data:application/json;charset=utf-8," + encodeURIComponent(json);
+    e.target.href = jsonData;
+    e.target.target = "_blank";
+    e.target.download = `${game.title}.txt`;
+  };
+
   const saveGame = () => {
     localStorage.setItem("_gamemaker_game", JSON.stringify(game));
   };
@@ -240,10 +256,18 @@ const App = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-200 mx-auto" style={{ maxWidth: "900px" }}>
+    <div className="p-6 bg-gray-200 mx-auto" style={{ width: "900px" }}>
       {editingButton && (
         <EditButton button={editingButton} handleSave={saveButton} />
       )}
+
+      <div className="mb-3 flex items-center">
+        <Button className="mr-4" onClick={exportGame}>
+          Export
+        </Button>
+        <label className="mr-2">Load Game: </label>
+        <input type="file" onChange={loadGameFromFile} />
+      </div>
 
       <div className="mb-3 flex justify-between">
         <div>
@@ -373,7 +397,9 @@ const App = () => {
         ) : (
           <textarea
             className="border border-solid w-1/2 bg-white p-4"
-            onChange={e => updateCard({ text: e.target.value })}
+            onChange={e =>
+              updateCard(currentCardIndex, { text: e.target.value })
+            }
             value={card.text}
           ></textarea>
         )}
