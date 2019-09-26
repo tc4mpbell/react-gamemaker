@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { SketchField, Tools } from "react-sketch";
 
+// import Polygon from "./PolygonTool";
+
 const cardTemplate = {
   image: null,
   text: "",
@@ -36,7 +38,10 @@ const cardTemplate = {
 
 const Button = ({ children, className, ...props }) => {
   return (
-    <a className={`shadow border rounded p-2 bg-white ${className}`} {...props}>
+    <a
+      className={`block text-center shadow border rounded p-2 bg-white ${className}`}
+      {...props}
+    >
       {children || "Untitled"}
     </a>
   );
@@ -169,6 +174,11 @@ const App = () => {
         console.log("PASTE!", copiedScene);
         // seems like this should work, but doesn't... why is copiedScene null?
         cardImageRef.current.fromJSON(copiedScene);
+        setTempCardImageJSON({
+          ...tempCardImageJSON,
+          [currentCardIndex]: cardImageRef.current.toJSON()
+        });
+        saveCard(currentCardIndex);
       }
     }
   };
@@ -333,6 +343,7 @@ const App = () => {
       {!runningGame && (
         <div className="flex items-center mb-4">
           <Button onClick={() => setTool(Tools.Pencil)}>Pencil</Button>
+          <Button onClick={() => setTool(Tools.Polygon)}>Polygon</Button>
           <Button onClick={() => setTool(Tools.Select)}>Select</Button>
           <Button onClick={() => setTool(Tools.Line)}>Line</Button>
           <Button onClick={() => setTool(Tools.Rectangle)}>Rectangle</Button>
@@ -340,7 +351,21 @@ const App = () => {
           <Button>
             <input
               type="color"
-              onChange={e => setFillColor(e.target.value)}
+              onChange={e => {
+                const selected = cardImageRef.current._fc.getActiveObject();
+                if (selected) {
+                  cardImageRef.current._fc
+                    .getActiveObject()
+                    .set("fill", e.target.value);
+
+                  // cardImageRef.current._fc.getActiveObject().canvas.backgroundColor =
+                  //   "red";
+                  console.log(cardImageRef.current._fc.getActiveObject());
+                }
+                setFillColor(e.target.value);
+
+                cardImageRef.current._fc.renderAll();
+              }}
             ></input>
             Fill
           </Button>
