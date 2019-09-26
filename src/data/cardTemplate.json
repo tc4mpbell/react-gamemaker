@@ -1,0 +1,33 @@
+{
+  "number": null,
+  "image": null,
+  "text": "",
+  "delay": null,
+  "redirectToCard": null,
+  "buttons": [
+    {
+      "text": "",
+      "goToCard": null
+    },
+    {
+      "text": "",
+      "goToCard": null
+    },
+    {
+      "text": "",
+      "goToCard": null
+    },
+    {
+      "text": "",
+      "goToCard": null
+    },
+    {
+      "text": "",
+      "goToCard": null
+    },
+    {
+      "text": "",
+      "goToCard": null
+    }
+  ]
+}
