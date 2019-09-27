@@ -7,9 +7,15 @@ import Button from "../ui/Button";
 import Settings from "./Settings";
 import GameTools from "./GameTools";
 import EditButton from "./EditButton";
+import { updateCard } from "../../reducers/cards";
+import { useGame } from "../../reducers/game";
 
-const Card = ({ cardIx, setCardIndex, updateCard, runningGame }) => {
+const Card = ({ cardIx }) => {
+  const dispatch = useDispatch();
+  const game = useGame();
   const card = useSelector(state => state.cards[cardIx]);
+  const runningGame = useSelector(state => state.game.running);
+
   const [tool, setTool] = useState(Tools.Pencil);
   const [fillColor, setFillColor] = useState("transparent");
   const [lineColor, setLineColor] = useState("black");
@@ -21,20 +27,23 @@ const Card = ({ cardIx, setCardIndex, updateCard, runningGame }) => {
 
   if (!card.image && cardImageRef.current) cardImageRef.current.clear();
 
-  const [tempCardImageJSON, setTempCardImageJSON] = useState({
-    [card.number]: card.image
-  });
+  const saveIfChanged = () => {};
 
-  const saveCard = ix => {
-    updateCard(ix, {
-      image: cardImageRef.current.toJSON() // tempCardImageJSON[ix]
-    });
+  const saveCard = () => {
+    dispatch(
+      updateCard({
+        cardIndex: cardIx,
+        data: {
+          image: cardImageRef.current.toJSON() // tempCardImageJSON[ix]
+        }
+      })
+    );
   };
 
   //TODO rm to <Buttons>
   const handleButtonClick = button => {
     if (runningGame) {
-      if (button.goToCard) setCardIndex(button.goToCard - 1);
+      if (button.goToCard) game.setCurrentCard(button.goToCard - 1);
     } else {
       setEditingButton(button);
     }
@@ -47,7 +56,7 @@ const Card = ({ cardIx, setCardIndex, updateCard, runningGame }) => {
       return { text, goToCard };
     });
 
-    updateCard({ buttons: newButtons });
+    dispatch(updateCard({ cardIndex: cardIx, data: { buttons: newButtons } }));
 
     setEditingButton(null);
   };
@@ -97,10 +106,7 @@ const Card = ({ cardIx, setCardIndex, updateCard, runningGame }) => {
               lineWidth={3}
               value={card.image}
               onChange={() => {
-                setTempCardImageJSON({
-                  ...tempCardImageJSON,
-                  [card.number]: cardImageRef.current.toJSON()
-                });
+                window._tempCardImage = cardImageRef.current.toJSON();
               }}
               ref={cardImageRef}
             />

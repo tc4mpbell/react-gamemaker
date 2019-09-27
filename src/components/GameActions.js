@@ -1,31 +1,33 @@
 import React from "react";
 
-import Button from "./ui/Button";
+import { useDispatch, useSelector } from "react-redux";
 
-const GameActions = ({
-  saveCard,
-  runningGame,
-  setRunningGame,
-  game,
-  setGame
-}) => {
+import Button from "./ui/Button";
+import { useGame } from "../reducers/game";
+
+const GameActions = () => {
+  const dispatch = useDispatch();
+  const game = useGame();
+
+  const runningGame = useSelector(state => state.game.running);
+
   const loadGameFromFile = e => {
-    var file = e.target.files[0];
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      console.log("target", e.target.result);
-      setGame(JSON.parse(e.target.result));
-    };
-    reader.readAsText(file);
+    // var file = e.target.files[0];
+    // var reader = new FileReader();
+    // reader.onload = function(e) {
+    //   console.log("target", e.target.result);
+    //   setGame(JSON.parse(e.target.result));
+    // };
+    // reader.readAsText(file);
   };
 
   const exportGame = e => {
-    var json = JSON.stringify(game);
-    var jsonData =
-      "data:application/json;charset=utf-8," + encodeURIComponent(json);
-    e.target.href = jsonData;
-    e.target.target = "_blank";
-    e.target.download = `${game.title}.txt`;
+    // var json = JSON.stringify(game);
+    // var jsonData =
+    //   "data:application/json;charset=utf-8," + encodeURIComponent(json);
+    // e.target.href = jsonData;
+    // e.target.target = "_blank";
+    // e.target.download = `${game.title}.txt`;
   };
 
   return (
@@ -35,7 +37,7 @@ const GameActions = ({
           onClick={() => {
             // TODO rmed this; won't save card if click run; will be fixed by saving changes in the card itself
             // if (!runningGame) saveCard();
-            setRunningGame(!runningGame);
+            game.setRunning(!runningGame);
           }}
           className="mr-4"
         >

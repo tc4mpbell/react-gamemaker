@@ -9,8 +9,12 @@ const cardSlice = createSlice({
       state.push(action.payload);
     },
     updateCard: (state, action) => {
+      console.log("Updatecard", action);
       const { data, cardIndex } = action.payload;
-      state[cardIndex] = data;
+      state[cardIndex] = {
+        ...state[cardIndex],
+        ...data
+      };
     }
   }
 });
