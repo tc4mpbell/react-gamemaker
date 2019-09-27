@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { SketchField, Tools } from "react-sketch";
+import { useSelector, useDispatch } from "react-redux";
 
 import Button from "../ui/Button";
 
@@ -7,7 +8,8 @@ import Settings from "./Settings";
 import GameTools from "./GameTools";
 import EditButton from "./EditButton";
 
-const Card = ({ card, setCardIndex, updateCard, runningGame }) => {
+const Card = ({ cardIx, setCardIndex, updateCard, runningGame }) => {
+  const card = useSelector(state => state.cards[cardIx]);
   const [tool, setTool] = useState(Tools.Pencil);
   const [fillColor, setFillColor] = useState("transparent");
   const [lineColor, setLineColor] = useState("black");
@@ -17,7 +19,7 @@ const Card = ({ card, setCardIndex, updateCard, runningGame }) => {
 
   const cardImageRef = useRef(null);
 
-  if (!card.image) cardImageRef.current.clear();
+  if (!card.image && cardImageRef.current) cardImageRef.current.clear();
 
   const [tempCardImageJSON, setTempCardImageJSON] = useState({
     [card.number]: card.image
