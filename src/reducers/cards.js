@@ -1,11 +1,22 @@
 import { createSlice } from "redux-starter-kit";
 import cardTemplate from "../data/cardTemplate";
 
+function make100Cards() {
+  return [...Array(100)].map((a, ix) => {
+    return JSON.parse(JSON.stringify(cardTemplate));
+  });
+}
+
+// Make all the cards up front...
+// Was doing this on demand, but was flaky.
+const initState = make100Cards();
+
 const cardSlice = createSlice({
-  slice: "card",
-  initialState: [],
+  slice: "cards",
+  initialState: initState,
   reducers: {
     addCard: (state, action) => {
+      console.log("Adding cards");
       state.push(action.payload);
     },
     updateCard: (state, action) => {

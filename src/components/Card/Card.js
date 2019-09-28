@@ -10,9 +10,11 @@ import EditButton from "./EditButton";
 import { updateCard } from "../../reducers/cards";
 import { useGame } from "../../reducers/game";
 
-const Card = ({ cardIx }) => {
+const Card = () => {
   const dispatch = useDispatch();
   const game = useGame();
+  const cardIx = useSelector(state => state.game.currentCard);
+
   const card = useSelector(state => state.cards[cardIx]);
   const runningGame = useSelector(state => state.game.running);
 
@@ -69,7 +71,17 @@ const Card = ({ cardIx }) => {
 
       {!runningGame && (
         <>
-          <Settings card={card} updateCard={() => {}} />
+          <Settings
+            card={card}
+            updateCard={data => {
+              dispatch(
+                updateCard({
+                  cardIndex: cardIx,
+                  data: data
+                })
+              );
+            }}
+          />
           <GameTools
             card={card}
             saveCard={() => saveCard(card.number)}
