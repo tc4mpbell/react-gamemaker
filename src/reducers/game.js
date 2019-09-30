@@ -20,24 +20,37 @@ const gameSlice = createSlice({
   }
 });
 
-const { setCurrentCard, setRunning } = gameSlice.actions;
-
 export const useGame = () => {
   const dispatch = useDispatch();
   const currentCardIndex = useSelector(state => state.game.currentCard);
+  const running = useSelector(state => state.game.running);
+
+  const { setCurrentCard, setRunning } = bindActionCreators(
+    gameSlice.actions,
+    dispatch
+  );
+
+  const saveGame = () => {
+    if (window._tempCardImage) {
+      dispatch(
+        updateCard({
+          cardIndex: currentCardIndex,
+          data: { image: window._tempCardImage }
+        })
+      );
+      window._tempCardImage = null;
+    }
+  };
 
   return {
-    ...bindActionCreators(gameSlice.actions, dispatch),
-    saveGame: () => {
-      if (window._tempCardImage) {
-        dispatch(
-          updateCard({
-            cardIndex: currentCardIndex,
-            data: { image: window._tempCardImage }
-          })
-        );
-        window._tempCardImage = null;
-      }
+    currentCardIndex,
+    running,
+    setRunning,
+    saveGame,
+    goToCard: cardIx => {
+      if (!running) saveGame();
+
+      setCurrentCard(cardIx);
     }
   };
 };

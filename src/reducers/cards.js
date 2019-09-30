@@ -1,4 +1,6 @@
 import { createSlice } from "redux-starter-kit";
+import { bindActionCreators } from "redux";
+import { useDispatch, useSelector } from "react-redux";
 import cardTemplate from "../data/cardTemplate";
 
 function make100Cards() {
@@ -11,16 +13,14 @@ function make100Cards() {
 // Was doing this on demand, but was flaky.
 const initState = make100Cards();
 
-const cardSlice = createSlice({
+const cardsSlice = createSlice({
   slice: "cards",
   initialState: initState,
   reducers: {
     addCard: (state, action) => {
-      console.log("Adding cards");
       state.push(action.payload);
     },
     updateCard: (state, action) => {
-      console.log("Updatecard", action);
       const { data, cardIndex } = action.payload;
       state[cardIndex] = {
         ...state[cardIndex],
@@ -30,6 +30,22 @@ const cardSlice = createSlice({
   }
 });
 
-export const { addCard, updateCard } = cardSlice.actions;
+export const { addCard, updateCard } = cardsSlice.actions;
 
-export default cardSlice.reducer;
+export const useCards = () => {
+  const dispatch = useDispatch();
+  const currentCardIndex = useSelector(state => state.game.currentCard);
+  const currentCard = useSelector(state => state.cards[currentCardIndex]);
+
+  const boundActions = bindActionCreators(cardsSlice.actions, dispatch);
+
+  return {
+    ...boundActions,
+    current: currentCard,
+    updateCurrent: data => {
+      boundActions.updateCard({ cardIndex: currentCardIndex, data });
+    }
+  };
+};
+
+export default cardsSlice.reducer;

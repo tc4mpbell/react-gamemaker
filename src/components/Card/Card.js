@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { SketchField, Tools } from "react-sketch";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -9,12 +9,12 @@ import GameTools from "./GameTools";
 import EditButton from "./EditButton";
 import { updateCard } from "../../reducers/cards";
 import { useGame } from "../../reducers/game";
+import CardText from "./CardText";
 
 const Card = () => {
   const dispatch = useDispatch();
   const game = useGame();
   const cardIx = useSelector(state => state.game.currentCard);
-
   const card = useSelector(state => state.cards[cardIx]);
   const runningGame = useSelector(state => state.game.running);
 
@@ -27,7 +27,9 @@ const Card = () => {
 
   const cardImageRef = useRef(null);
 
-  if (!card.image && cardImageRef.current) cardImageRef.current.clear();
+  useEffect(() => {
+    if (!card.image && cardImageRef.current) cardImageRef.current.clear();
+  }, [cardIx]);
 
   const saveIfChanged = () => {};
 
@@ -124,17 +126,7 @@ const Card = () => {
             />
           )}
         </div>
-        {runningGame ? (
-          <div className="border border-solid w-1/2 bg-white p-4">
-            {card.text}
-          </div>
-        ) : (
-          <textarea
-            className="border border-solid w-1/2 bg-white p-4"
-            onChange={e => updateCard(card.number, { text: e.target.value })}
-            value={card.text}
-          ></textarea>
-        )}
+        <CardText />
       </div>
 
       <div className="mt-6 flex flex-wrap justify-between">

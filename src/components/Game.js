@@ -9,44 +9,20 @@ import GameActions from "./GameActions";
 import { CardNav } from "./CardNav";
 
 import { useGame } from "../reducers/game";
-import { addCard, updateCard } from "../reducers/cards";
+import { addCard, updateCard, useCards } from "../reducers/cards";
 
 const mapDispatch = { addCard, updateCard };
 
 const Game = ({ addCard, updateCard }) => {
   const game = useGame();
+  const cards = useCards();
+
+  const card = cards.current;
+
   const currentCardIndex = useSelector(state => state.game.currentCard);
-  let card = useSelector(state => state.cards[currentCardIndex]);
-  // const game = useSelector(state => state.game);
-  const cards = useSelector(state => state.cards);
   const runningGame = useSelector(state => state.game.running);
 
   const [timeouts, setTimeouts] = useState({});
-
-  // TODO may not work for jumps > 1
-  // If the cards array doesn't have an entry for this ix, make one.
-
-  useEffect(() => {
-    var totalCards = cards.length - 1;
-    if (currentCardIndex > totalCards) {
-      console.log("TC", totalCards, currentCardIndex);
-      for (let i = totalCards + 1; i <= currentCardIndex; i++) {
-        const clonedTemplate = JSON.parse(JSON.stringify(cardTemplate));
-        clonedTemplate.number = i;
-
-        addCard(clonedTemplate);
-        console.log("adding card", i, cards.length);
-      }
-      totalCards += 1;
-    }
-  }, [currentCardIndex]);
-
-  useEffect(() => {
-    if (cards.length > currentCardIndex) {
-      card = cards[currentCardIndex];
-      console.log("Set card to ", currentCardIndex, cards[currentCardIndex]);
-    }
-  }, [cards, currentCardIndex]);
 
   // TODO need effect?
   useEffect(() => {
@@ -71,21 +47,12 @@ const Game = ({ addCard, updateCard }) => {
     };
   }, [runningGame, currentCardIndex]);
 
-  const saveAndGoToCard = cardNumber => {
-    game.saveGame();
-    game.setCurrentCard(cardNumber);
-  };
-
   return (
     <div className="p-6 bg-gray-200 mx-auto" style={{ width: "900px" }}>
       <div className="flex">
         <GameActions />
 
-        <CardNav
-          runningGame={runningGame}
-          currentCardIndex={currentCardIndex}
-          saveAndGoToCard={saveAndGoToCard}
-        />
+        <CardNav />
       </div>
       {card && <Card />}
     </div>
