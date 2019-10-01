@@ -1,15 +1,22 @@
 import React, { useState } from "react";
 
+import ReactDOM from "react-dom";
+
 import Button from "../ui/Button";
 import Label from "../ui/Label";
 import Input from "../ui/Input";
+
+const Modal = ({ children }) => {
+  const domNode = document.getElementById("modal-root");
+  return ReactDOM.createPortal(children, domNode);
+};
 
 const EditButton = ({ handleSave, button }) => {
   const [buttonText, setButtonText] = useState(button.text);
   const [goToCard, setDestinationCard] = useState(button.goToCard);
 
   return (
-    <>
+    <Modal>
       <div className="fixed w-full h-full bg-gray-600 left-0 top-0 opacity-50 z-10"></div>
       <div className="fixed w-full h-full left-0 top-0 z-10">
         <div className="mt-4 mx-auto p-4 border border-solid bg-white max-w-xs">
@@ -39,7 +46,7 @@ const EditButton = ({ handleSave, button }) => {
           </Button>
         </div>
       </div>
-    </>
+    </Modal>
   );
 };
 

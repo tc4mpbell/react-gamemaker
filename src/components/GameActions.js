@@ -9,8 +9,6 @@ const GameActions = () => {
   const dispatch = useDispatch();
   const game = useGame();
 
-  const runningGame = useSelector(state => state.game.running);
-
   const loadGameFromFile = e => {
     // var file = e.target.files[0];
     // var reader = new FileReader();
@@ -36,12 +34,12 @@ const GameActions = () => {
         <Button
           onClick={() => {
             // TODO rmed this; won't save card if click run; will be fixed by saving changes in the card itself
-            // if (!runningGame) saveCard();
-            game.setRunning(!runningGame);
+            // if (!game.running) saveCard();
+            game.setRunning(!game.running);
           }}
           className="mr-4"
         >
-          {runningGame ? "Edit Game" : "Run Game!"}
+          {game.running ? "Edit Game" : "Run Game!"}
         </Button>
         <Button className="mr-4" onClick={exportGame}>
           Export

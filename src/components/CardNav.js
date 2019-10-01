@@ -16,7 +16,7 @@ export function CardNav() {
               onClick={() => game.goToCard(game.currentCardIndex - 1)}
               disabled={game.currentCardIndex === 0}
             >
-              &larr; Previous Card
+              &larr;
             </Button>
             <span className="mr-3">{game.currentCardIndex + 1} / 100</span>
             <Button
@@ -24,7 +24,7 @@ export function CardNav() {
               onClick={() => game.goToCard(game.currentCardIndex + 1)}
               disabled={game.currentCardIndex === 99}
             >
-              Next Card &rarr;
+              &rarr;
             </Button>
           </div>
         )}

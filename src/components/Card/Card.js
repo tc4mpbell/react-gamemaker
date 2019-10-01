@@ -7,23 +7,22 @@ import Button from "../ui/Button";
 import Settings from "./Settings";
 import GameTools from "./GameTools";
 import EditButton from "./EditButton";
-import { updateCard } from "../../reducers/cards";
+import { updateCard, useCards } from "../../reducers/cards";
 import { useGame } from "../../reducers/game";
 import CardText from "./CardText";
+import Buttons from "./Buttons";
 
 const Card = () => {
   const dispatch = useDispatch();
   const game = useGame();
-  const cardIx = useSelector(state => state.game.currentCard);
-  const card = useSelector(state => state.cards[cardIx]);
-  const runningGame = useSelector(state => state.game.running);
+  const cards = useCards();
+  const cardIx = game.currentCardIndex;
+  const card = cards.current;
 
   const [tool, setTool] = useState(Tools.Pencil);
   const [fillColor, setFillColor] = useState("transparent");
   const [lineColor, setLineColor] = useState("black");
   const [copiedScene, setCopiedScene] = useState(null);
-
-  const [editingButton, setEditingButton] = useState(null);
 
   const cardImageRef = useRef(null);
 
@@ -31,62 +30,12 @@ const Card = () => {
     if (!card.image && cardImageRef.current) cardImageRef.current.clear();
   }, [cardIx]);
 
-  const saveIfChanged = () => {};
-
-  const saveCard = () => {
-    dispatch(
-      updateCard({
-        cardIndex: cardIx,
-        data: {
-          image: cardImageRef.current.toJSON() // tempCardImageJSON[ix]
-        }
-      })
-    );
-  };
-
-  //TODO rm to <Buttons>
-  const handleButtonClick = button => {
-    if (runningGame) {
-      if (button.goToCard) game.setCurrentCard(button.goToCard - 1);
-    } else {
-      setEditingButton(button);
-    }
-  };
-
-  const saveButton = (text, goToCard) => {
-    const newButtons = card.buttons.map(btn => {
-      if (btn !== editingButton) return btn;
-
-      return { text, goToCard };
-    });
-
-    dispatch(updateCard({ cardIndex: cardIx, data: { buttons: newButtons } }));
-
-    setEditingButton(null);
-  };
-
   return (
     <>
-      {editingButton && (
-        <EditButton button={editingButton} handleSave={saveButton} />
-      )}
-
-      {!runningGame && (
+      {!game.running && (
         <>
-          <Settings
-            card={card}
-            updateCard={data => {
-              dispatch(
-                updateCard({
-                  cardIndex: cardIx,
-                  data: data
-                })
-              );
-            }}
-          />
+          <Settings />
           <GameTools
-            card={card}
-            saveCard={() => saveCard(card.number)}
             cardImageRef={cardImageRef}
             tool={tool}
             setTool={setTool}
@@ -102,7 +51,7 @@ const Card = () => {
 
       <div className="flex" style={{ minHeight: "300px" }}>
         <div className="border border-solid w-1/2 mr-3 bg-white">
-          {runningGame ? (
+          {game.running ? (
             <SketchField
               width="100%"
               height="100%"
@@ -129,23 +78,7 @@ const Card = () => {
         <CardText />
       </div>
 
-      <div className="mt-6 flex flex-wrap justify-between">
-        {card.buttons
-          .filter(
-            button =>
-              !runningGame || (button.text && button.text !== "Untitled")
-          )
-          .map(button => (
-            <div className="w-1/3 p-2">
-              <Button
-                className="w-full"
-                onClick={() => handleButtonClick(button)}
-              >
-                {button.text}
-              </Button>
-            </div>
-          ))}
-      </div>
+      <Buttons />
     </>
   );
 };

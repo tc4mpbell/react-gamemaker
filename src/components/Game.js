@@ -29,7 +29,7 @@ const Game = ({ addCard, updateCard }) => {
     if (runningGame && card && card.delay && card.redirectToCard) {
       // set a timer, then redirect away from this card (animation!)
       const _timeoutId = setTimeout(() => {
-        game.setCurrentCard(card.redirectToCard - 1);
+        game.goToCard(card.redirectToCard - 1);
       }, card.delay);
       setTimeouts({
         ...timeouts,

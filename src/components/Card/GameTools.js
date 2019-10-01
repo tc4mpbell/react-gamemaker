@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Tools } from "react-sketch";
 
 import Button from "../ui/Button";
+import { useCards } from "../../reducers/cards";
 
 const GameTools = ({
-  card,
-  saveCard,
   cardImageRef,
   tool,
   setTool,
@@ -16,6 +15,8 @@ const GameTools = ({
   copiedScene,
   setCopiedScene
 }) => {
+  const cards = useCards();
+
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
 
@@ -32,18 +33,21 @@ const GameTools = ({
   const handleKeyPress = e => {
     if (e.key === "Backspace") cardImageRef.current.removeSelected();
     else if (e.key === "c" && e.metaKey) {
-      console.log("copy!", card.image);
-      setCopiedScene(card.image);
+      console.log("copy!", cards.current.image);
+      setCopiedScene(cards.current.image);
     } else if (e.key === "v" && e.metaKey) {
       console.log("PASTE!", copiedScene);
       // seems like this should work, but doesn't... why is copiedScene null?
       cardImageRef.current.fromJSON(copiedScene);
-      // setTempCardImageJSON({
-      //   ...tempCardImageJSON,
-      //   [currentCardIndex]: cardImageRef.current.toJSON()
-      // });
       saveCard();
     }
+  };
+
+  // TODO rm this -- think we can use game.save instead
+  const saveCard = () => {
+    cards.updateCurrent({
+      image: cardImageRef.current.toJSON()
+    });
   };
 
   return (
@@ -79,7 +83,9 @@ const GameTools = ({
         Line
       </Button>
 
-      <Button onClick={() => setCopiedScene(card.image)}>Copy Scene</Button>
+      <Button onClick={() => setCopiedScene(cards.current.image)}>
+        Copy Scene
+      </Button>
       {copiedScene && (
         <Button onClick={() => cardImageRef.current.fromJSON(copiedScene)}>
           Paste Scene

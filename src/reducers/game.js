@@ -25,7 +25,7 @@ export const useGame = () => {
   const currentCardIndex = useSelector(state => state.game.currentCard);
   const running = useSelector(state => state.game.running);
 
-  const { setCurrentCard, setRunning } = bindActionCreators(
+  const { setCurrentCard, setRunning: _setRunning } = bindActionCreators(
     gameSlice.actions,
     dispatch
   );
@@ -45,7 +45,10 @@ export const useGame = () => {
   return {
     currentCardIndex,
     running,
-    setRunning,
+    setRunning: running => {
+      saveGame();
+      _setRunning(running);
+    },
     saveGame,
     goToCard: cardIx => {
       if (!running) saveGame();
