@@ -49,7 +49,7 @@ const Game = ({ addCard, updateCard }) => {
 
   return (
     <div className="p-6 bg-gray-200 mx-auto" style={{ width: "900px" }}>
-      <div className="flex">
+      <div className="flex justify-between">
         <GameActions />
 
         <CardNav />

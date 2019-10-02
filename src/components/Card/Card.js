@@ -45,6 +45,7 @@ const Card = () => {
             setLineColor={setLineColor}
             copiedScene={copiedScene}
             setCopiedScene={setCopiedScene}
+            className="mt-2"
           />
         </>
       )}

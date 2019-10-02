@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Tools } from "react-sketch";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPencilAlt,
+  faDrawPolygon,
+  faSquare,
+  faCircle,
+  faMousePointer,
+  faMinus
+} from "@fortawesome/free-solid-svg-icons";
 
 import Button from "../ui/Button";
 import { useCards } from "../../reducers/cards";
@@ -13,7 +22,8 @@ const GameTools = ({
   lineColor,
   setLineColor,
   copiedScene,
-  setCopiedScene
+  setCopiedScene,
+  className
 }) => {
   const cards = useCards();
 
@@ -51,16 +61,29 @@ const GameTools = ({
   };
 
   return (
-    <div className="flex items-center mb-4">
-      <Button onClick={() => setTool(Tools.Pencil)}>Pencil</Button>
-      <Button onClick={() => setTool(Tools.Polygon)}>Polygon</Button>
-      <Button onClick={() => setTool(Tools.Select)}>Select</Button>
-      <Button onClick={() => setTool(Tools.Line)}>Line</Button>
-      <Button onClick={() => setTool(Tools.Rectangle)}>Rectangle</Button>
-      <Button onClick={() => setTool(Tools.Circle)}>Circle</Button>
+    <div className={`flex items-center mb-4 ${className}`}>
+      <Button onClick={() => setTool(Tools.Pencil)}>
+        <FontAwesomeIcon icon={faPencilAlt} />
+      </Button>
+      <Button onClick={() => setTool(Tools.Polygon)}>
+        <FontAwesomeIcon icon={faDrawPolygon} />
+      </Button>
+      <Button onClick={() => setTool(Tools.Select)}>
+        <FontAwesomeIcon icon={faMousePointer} />
+      </Button>
+      <Button onClick={() => setTool(Tools.Line)}>
+        <FontAwesomeIcon icon={faMinus} />
+      </Button>
+      <Button onClick={() => setTool(Tools.Rectangle)}>
+        <FontAwesomeIcon icon={faSquare} />
+      </Button>
+      <Button onClick={() => setTool(Tools.Circle)} className="mr-4">
+        <FontAwesomeIcon icon={faCircle} />
+      </Button>
       <Button>
         <input
           type="color"
+          value={fillColor}
           onChange={e => {
             const selected = cardImageRef.current._fc.getActiveObject();
             if (selected) {
@@ -77,6 +100,7 @@ const GameTools = ({
       </Button>
       <Button>
         <input
+          value={lineColor}
           type="color"
           onChange={e => setLineColor(e.target.value)}
         ></input>
