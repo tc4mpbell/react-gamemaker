@@ -2,18 +2,14 @@ import React, { useRef, useEffect, useState } from "react";
 import { SketchField, Tools } from "react-sketch";
 import { useSelector, useDispatch } from "react-redux";
 
-import Button from "../ui/Button";
-
 import Settings from "./Settings";
 import GameTools from "./GameTools";
-import EditButton from "./EditButton";
 import { updateCard, useCards } from "../../reducers/cards";
 import { useGame } from "../../reducers/game";
 import CardText from "./CardText";
 import Buttons from "./Buttons";
 
 const Card = () => {
-  const dispatch = useDispatch();
   const game = useGame();
   const cards = useCards();
   const cardIx = game.currentCardIndex;
@@ -76,6 +72,7 @@ const Card = () => {
             />
           )}
         </div>
+
         <CardText />
       </div>
 

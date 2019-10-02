@@ -33,8 +33,6 @@ const GameActions = () => {
       <div className="mb-3 flex items-center">
         <Button
           onClick={() => {
-            // TODO rmed this; won't save card if click run; will be fixed by saving changes in the card itself
-            // if (!game.running) saveCard();
             game.setRunning(!game.running);
           }}
           className="mr-4"

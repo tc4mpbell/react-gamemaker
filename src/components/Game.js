@@ -1,8 +1,5 @@
-import React, { useRef, useState, useEffect } from "react";
-import { SketchField } from "react-sketch";
-import { connect, useSelector, useDispatch } from "react-redux";
-
-import cardTemplate from "../data/cardTemplate";
+import React, { useState, useEffect } from "react";
+import { connect, useSelector } from "react-redux";
 
 import Card from "./Card/Card";
 import GameActions from "./GameActions";
@@ -51,9 +48,9 @@ const Game = ({ addCard, updateCard }) => {
     <div className="p-6 bg-gray-200 mx-auto" style={{ width: "900px" }}>
       <div className="flex justify-between">
         <GameActions />
-
         <CardNav />
       </div>
+
       {card && <Card />}
     </div>
   );

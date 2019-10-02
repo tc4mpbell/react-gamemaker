@@ -13,7 +13,6 @@ const Buttons = () => {
 
   const [editingButton, setEditingButton] = useState(null);
 
-  //TODO rm to <Buttons>
   const handleButtonClick = button => {
     if (game.running) {
       if (button.goToCard) game.setCurrentCard(button.goToCard - 1);
