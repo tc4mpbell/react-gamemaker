@@ -12,6 +12,7 @@ import {
 
 import Button from "../ui/Button";
 import { useCards } from "../../reducers/cards";
+import { useGame } from "../../reducers/game";
 
 const GameTools = ({
   cardImageRef,
@@ -25,39 +26,29 @@ const GameTools = ({
   setCopiedScene,
   className
 }) => {
+  const game = useGame();
   const cards = useCards();
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyPress);
+    document.addEventListener("keydown", handleKeyPress);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyPress);
+      document.removeEventListener("keydown", handleKeyPress);
     };
-  }, []);
-
-  // debugging copy/paste
-  // useEffect(() => {
-  //   console.log("Copied scene", copiedScene);
-  // }, [copiedScene]);
+  }, [game.currentCardIndex]);
 
   const handleKeyPress = e => {
-    if (e.key === "Backspace") cardImageRef.current.removeSelected();
+    if (
+      e.key === "Backspace" &&
+      !["input", "textarea"].includes(e.target.localName)
+    )
+      cardImageRef.current.removeSelected();
     else if (e.key === "c" && e.metaKey) {
-      console.log("copy!", cards.current.image);
-      setCopiedScene(cards.current.image);
+      window._copiedCardImage = cardImageRef.current.toJSON();
     } else if (e.key === "v" && e.metaKey) {
-      console.log("PASTE!", copiedScene);
-      // seems like this should work, but doesn't... why is copiedScene null?
-      cardImageRef.current.fromJSON(copiedScene);
-      saveCard();
+      window._tempCardImage = window._copiedCardImage;
+      game.saveGame();
     }
-  };
-
-  // TODO rm this -- think we can use game.save instead
-  const saveCard = () => {
-    cards.updateCurrent({
-      image: cardImageRef.current.toJSON()
-    });
   };
 
   return (

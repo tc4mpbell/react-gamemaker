@@ -1,10 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
 import { SketchField, Tools } from "react-sketch";
-import { useSelector, useDispatch } from "react-redux";
 
 import Settings from "./Settings";
 import GameTools from "./GameTools";
-import { updateCard, useCards } from "../../reducers/cards";
+import { useCards } from "../../reducers/cards";
 import { useGame } from "../../reducers/game";
 import CardText from "./CardText";
 import Buttons from "./Buttons";
@@ -16,14 +15,23 @@ const Card = () => {
   const card = cards.current;
 
   const [tool, setTool] = useState(Tools.Pencil);
-  const [fillColor, setFillColor] = useState("transparent");
-  const [lineColor, setLineColor] = useState("black");
-  const [copiedScene, setCopiedScene] = useState(null);
+  const [fillColor, setFillColor] = useState();
+  const [lineColor, setLineColor] = useState("#000000");
 
   const cardImageRef = useRef(null);
 
   useEffect(() => {
-    if (!card.image && cardImageRef.current) cardImageRef.current.clear();
+    if (!card.image && cardImageRef.current) {
+      console.log(
+        "CLEAR - Crd changed",
+        cardIx,
+        card.image,
+        cardImageRef.current
+      );
+      cardImageRef.current.clear();
+
+      console.log("CLEARED!!", card.image, cardImageRef.current.toJSON());
+    }
   }, [cardIx]);
 
   return (
@@ -39,8 +47,6 @@ const Card = () => {
             setFillColor={setFillColor}
             lineColor={lineColor}
             setLineColor={setLineColor}
-            copiedScene={copiedScene}
-            setCopiedScene={setCopiedScene}
             className="mt-2"
           />
         </>
@@ -66,6 +72,7 @@ const Card = () => {
               lineWidth={3}
               value={card.image}
               onChange={() => {
+                console.log("TEMMP??", window._tempCardImage);
                 window._tempCardImage = cardImageRef.current.toJSON();
               }}
               ref={cardImageRef}
