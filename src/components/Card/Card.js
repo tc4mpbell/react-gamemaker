@@ -34,6 +34,14 @@ const Card = () => {
     }
   }, [cardIx]);
 
+  // useEffect(() => {
+  //   console.log("Card!", card.image);
+  //   if (card.image === null) {
+  //     cardImageRef.current.clear();
+  //     window._tempCardImage = null;
+  //   }
+  // }, [card.image]);
+
   return (
     <>
       {!game.running && (
@@ -72,7 +80,6 @@ const Card = () => {
               lineWidth={3}
               value={card.image}
               onChange={() => {
-                console.log("TEMMP??", window._tempCardImage);
                 window._tempCardImage = cardImageRef.current.toJSON();
               }}
               ref={cardImageRef}

@@ -6,7 +6,6 @@ export function CardNav() {
   const game = useGame();
 
   useEffect(() => {
-    console.log("Bind", game.currentCardIndex);
     document.addEventListener("keydown", handleKeyboardNav);
     return () => {
       document.removeEventListener("keydown", handleKeyboardNav);
@@ -14,17 +13,22 @@ export function CardNav() {
   }, [game.currentCardIndex]);
 
   const handleKeyboardNav = e => {
-    if (e.key === "]" && e.metaKey) {
-      if (game.currentCardIndex < 100) goToNextCard();
-      e.preventDefault();
-    } else if (e.key === "[" && e.metaKey) {
-      if (game.currentCardIndex > 0) goToPrevCard();
-      e.preventDefault();
-    }
+    // TODO fix == copies previous image to next card if blank.
+    // if (e.key === "]" && e.metaKey) {
+    //   goToNextCard();
+    //   e.preventDefault();
+    // } else if (e.key === "[" && e.metaKey) {
+    //   goToPrevCard();
+    //   e.preventDefault();
+    // }
   };
 
-  const goToPrevCard = () => game.goToCard(game.currentCardIndex - 1);
-  const goToNextCard = () => game.goToCard(game.currentCardIndex + 1);
+  const goToPrevCard = () => {
+    if (game.currentCardIndex > 0) game.goToCard(game.currentCardIndex - 1);
+  };
+  const goToNextCard = () => {
+    if (game.currentCardIndex < 100) game.goToCard(game.currentCardIndex + 1);
+  };
 
   return (
     <div>
