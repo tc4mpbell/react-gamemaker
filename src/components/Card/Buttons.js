@@ -15,7 +15,7 @@ const Buttons = () => {
 
   const handleButtonClick = button => {
     if (game.running) {
-      if (button.goToCard) game.setCurrentCard(button.goToCard - 1);
+      if (button.goToCard) game.goToCard(button.goToCard - 1);
     } else {
       setEditingButton(button);
     }
