@@ -1,31 +1,31 @@
 import React from "react";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useStore } from "react-redux";
 
 import Button from "./ui/Button";
 import { useGame } from "../reducers/game";
 
 const GameActions = () => {
-  const dispatch = useDispatch();
   const game = useGame();
+  const store = useStore();
 
-  const loadGameFromFile = e => {
-    // var file = e.target.files[0];
-    // var reader = new FileReader();
-    // reader.onload = function(e) {
-    //   console.log("target", e.target.result);
-    //   setGame(JSON.parse(e.target.result));
-    // };
-    // reader.readAsText(file);
+  const loadGameFromFile = (e) => {
+    var file = e.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      game.loadGame(JSON.parse(e.target.result));
+    };
+    reader.readAsText(file);
   };
 
-  const exportGame = e => {
-    // var json = JSON.stringify(game);
-    // var jsonData =
-    //   "data:application/json;charset=utf-8," + encodeURIComponent(json);
-    // e.target.href = jsonData;
-    // e.target.target = "_blank";
-    // e.target.download = `${game.title}.txt`;
+  const exportGame = (e) => {
+    game.saveGame();
+    var json = JSON.stringify(store.getState());
+    var jsonData =
+      "data:application/json;charset=utf-8," + encodeURIComponent(json);
+    e.target.href = jsonData;
+    e.target.target = "_blank";
+    e.target.download = `${game.title}.txt`;
   };
 
   return (

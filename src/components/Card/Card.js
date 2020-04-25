@@ -60,7 +60,10 @@ const Card = () => {
         </>
       )}
 
-      <div className="flex" style={{ minHeight: "300px" }}>
+      <div
+        className="flex"
+        style={{ minHeight: "300px", width: "100vw", height: "40vw" }}
+      >
         <div className="border border-solid w-1/2 mr-3 bg-white">
           {game.running ? (
             <SketchField

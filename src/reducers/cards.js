@@ -1,7 +1,9 @@
-import { createSlice } from "redux-starter-kit";
+import { createSlice } from "@reduxjs/toolkit";
 import { bindActionCreators } from "redux";
 import { useDispatch, useSelector } from "react-redux";
 import cardTemplate from "../data/cardTemplate";
+
+import { loadGame } from "./game";
 
 function make100Cards() {
   return [...Array(100)].map((a, ix) => {
@@ -14,7 +16,7 @@ function make100Cards() {
 const initState = make100Cards();
 
 const cardsSlice = createSlice({
-  slice: "cards",
+  name: "cards",
   initialState: initState,
   reducers: {
     addCard: (state, action) => {
@@ -24,27 +26,32 @@ const cardsSlice = createSlice({
       const { data, cardIndex } = action.payload;
       state[cardIndex] = {
         ...state[cardIndex],
-        ...data
+        ...data,
       };
-    }
-  }
+    },
+  },
+  extraReducers: {
+    "game/loadGame": (state, action) => {
+      return action.payload.cards;
+    },
+  },
 });
 
 export const { addCard, updateCard } = cardsSlice.actions;
 
 export const useCards = () => {
   const dispatch = useDispatch();
-  const currentCardIndex = useSelector(state => state.game.currentCard);
-  const currentCard = useSelector(state => state.cards[currentCardIndex]);
+  const currentCardIndex = useSelector((state) => state.game.currentCard);
+  const currentCard = useSelector((state) => state.cards[currentCardIndex]);
 
   const boundActions = bindActionCreators(cardsSlice.actions, dispatch);
 
   return {
     ...boundActions,
     current: currentCard,
-    updateCurrent: data => {
+    updateCurrent: (data) => {
       boundActions.updateCard({ cardIndex: currentCardIndex, data });
-    }
+    },
   };
 };
 

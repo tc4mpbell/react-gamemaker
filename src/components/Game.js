@@ -16,8 +16,8 @@ const Game = ({ addCard, updateCard }) => {
 
   const card = cards.current;
 
-  const currentCardIndex = useSelector(state => state.game.currentCard);
-  const runningGame = useSelector(state => state.game.running);
+  const currentCardIndex = useSelector((state) => state.game.currentCard);
+  const runningGame = useSelector((state) => state.game.running);
 
   const [timeouts, setTimeouts] = useState({});
 
@@ -30,7 +30,7 @@ const Game = ({ addCard, updateCard }) => {
       }, card.delay);
       setTimeouts({
         ...timeouts,
-        [currentCardIndex]: _timeoutId
+        [currentCardIndex]: _timeoutId,
       });
     }
     return () => {
@@ -38,14 +38,14 @@ const Game = ({ addCard, updateCard }) => {
         clearTimeout(timeouts[currentCardIndex]);
         setTimeouts({
           ...timeouts,
-          [currentCardIndex]: null
+          [currentCardIndex]: null,
         });
       }
     };
   }, [runningGame, currentCardIndex]);
 
   return (
-    <div className="p-6 bg-gray-200 mx-auto" style={{ width: "900px" }}>
+    <div className="p-6 bg-gray-200 mx-auto w-100 h-full">
       <div className="flex justify-between">
         <GameActions />
         <CardNav />
@@ -56,7 +56,4 @@ const Game = ({ addCard, updateCard }) => {
   );
 };
 
-export default connect(
-  null,
-  mapDispatch
-)(Game);
+export default connect(null, mapDispatch)(Game);
