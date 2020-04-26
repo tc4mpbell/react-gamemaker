@@ -34,6 +34,18 @@ const Card = () => {
     }
   }, [cardIx]);
 
+  useEffect(() => {
+    /**
+     * TODO: why does the color not change for the current tool...
+     * have to do this terrible hack below to switch tools.
+     */
+    const oldTool = tool;
+    setTool();
+    setTimeout(() => {
+      setTool(oldTool);
+    }, 1);
+  }, [fillColor, lineColor]);
+
   // useEffect(() => {
   //   console.log("Card!", card.image);
   //   if (card.image === null) {

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Tools } from "react-sketch";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -7,27 +7,49 @@ import {
   faSquare,
   faCircle,
   faMousePointer,
-  faMinus
+  faMinus,
 } from "@fortawesome/free-solid-svg-icons";
+import color from "color";
 
 import Button from "../ui/Button";
 import { useCards } from "../../reducers/cards";
 import { useGame } from "../../reducers/game";
+
+const colorPalette = [
+  "rgb(20, 12, 28)",
+  "rgb(68, 36, 52)",
+  "rgb(48, 52, 109)",
+  "rgb(78, 74, 78)",
+  "rgb(133, 76, 48)",
+  "rgb(52, 101, 36)",
+  "rgb(208, 70, 72)",
+  "rgb(117, 113, 97)",
+  "rgb(89, 125, 206)",
+  "rgb(210, 125, 44)",
+  "rgb(133, 149, 161)",
+  "rgb(109, 170, 44)",
+  "rgb(210, 170, 153)",
+  "rgb(109, 194, 202)",
+  "rgb(218, 212, 94)",
+  "rgb(222, 238, 214)",
+];
 
 const GameTools = ({
   cardImageRef,
   tool,
   setTool,
   fillColor,
-  setFillColor,
+  setFillColor: _setFillColor,
   lineColor,
-  setLineColor,
+  setLineColor: _setLineColor,
   copiedScene,
   setCopiedScene,
-  className
+  className,
 }) => {
   const game = useGame();
   const cards = useCards();
+
+  const [strokeOrFill, setStrokeOrFill] = useState("stroke");
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyPress);
@@ -37,7 +59,7 @@ const GameTools = ({
     };
   }, [game.currentCardIndex]);
 
-  const handleKeyPress = e => {
+  const handleKeyPress = (e) => {
     if (
       e.key === "Backspace" &&
       !["input", "textarea"].includes(e.target.localName)
@@ -49,6 +71,19 @@ const GameTools = ({
       window._tempCardImage = window._copiedCardImage;
       game.saveGame();
     }
+  };
+
+  const setColor = (color) => {
+    const selected = cardImageRef.current._fc.getActiveObject();
+    if (selected) {
+      cardImageRef.current._fc.getActiveObject().set(strokeOrFill, color);
+    }
+
+    if (strokeOrFill === "fill") {
+      _setFillColor(color);
+    } else if (strokeOrFill === "stroke") _setLineColor(color);
+
+    cardImageRef.current._fc.renderAll();
   };
 
   return (
@@ -71,32 +106,33 @@ const GameTools = ({
       <Button onClick={() => setTool(Tools.Circle)} className="mr-4">
         <FontAwesomeIcon icon={faCircle} />
       </Button>
-      <Button>
-        <input
-          type="color"
-          value={fillColor}
-          onChange={e => {
-            const selected = cardImageRef.current._fc.getActiveObject();
-            if (selected) {
-              cardImageRef.current._fc
-                .getActiveObject()
-                .set("fill", e.target.value);
-            }
-            setFillColor(e.target.value);
 
-            cardImageRef.current._fc.renderAll();
-          }}
-        ></input>
+      <Button
+        style={{
+          background: fillColor,
+          color: color(fillColor || "white").negate(),
+        }}
+        onClick={(e) => setStrokeOrFill("fill")}
+      >
         Fill
       </Button>
-      <Button>
-        <input
-          value={lineColor}
-          type="color"
-          onChange={e => setLineColor(e.target.value)}
-        ></input>
+      <Button
+        style={{
+          background: lineColor,
+          color: color(lineColor).negate(),
+        }}
+        onClick={(e) => setStrokeOrFill("stroke")}
+      >
         Line
       </Button>
+
+      {colorPalette.map((color) => (
+        <div
+          className="w-8 h-8 border border-solid border-white"
+          style={{ background: color }}
+          onClick={() => setColor(color)}
+        />
+      ))}
 
       <Button onClick={() => setCopiedScene(cards.current.image)}>
         Copy Scene
