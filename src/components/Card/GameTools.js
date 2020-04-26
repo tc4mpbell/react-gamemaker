@@ -111,6 +111,7 @@ const GameTools = ({
         style={{
           background: fillColor,
           color: color(fillColor || "white").negate(),
+          border: strokeOrFill === "fill" && "double yellow 3px",
         }}
         onClick={(e) => setStrokeOrFill("fill")}
       >
@@ -120,6 +121,7 @@ const GameTools = ({
         style={{
           background: lineColor,
           color: color(lineColor).negate(),
+          border: strokeOrFill === "stroke" && "double yellow 3px",
         }}
         onClick={(e) => setStrokeOrFill("stroke")}
       >
